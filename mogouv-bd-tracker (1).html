@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mögouv BD Tracker</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f4;color:#1a1a1a;min-height:100vh;padding:1.5rem}
+.wrap{max-width:720px;margin:0 auto}
+.intro{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+.intro-title{font-size:17px;font-weight:600;margin-bottom:4px}
+.intro-text{font-size:13px;color:#666;line-height:1.6}
+.lbl{font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px}
+.thermo{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:1.25rem;margin-bottom:1rem;display:flex;align-items:center;gap:1rem}
+.thermo-bar-wrap{flex:1}
+.thermo-top{display:flex;justify-content:space-between;margin-bottom:6px}
+.thermo-bar-bg{background:#f0f0ee;border-radius:999px;height:8px;overflow:hidden}
+.thermo-bar-fill{height:100%;border-radius:999px;transition:width 0.5s ease}
+.thermo-count{font-size:24px;font-weight:600;white-space:nowrap}
+.thermo-sub{font-size:12px;color:#999;text-align:right}
+.members-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
+@media(max-width:500px){.members-grid{grid-template-columns:1fr}}
+.mcard{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:1rem;cursor:pointer;transition:border-color 0.15s}
+.mcard:hover{border-color:#aaa}
+.mcard.sel{border-color:#378ADD;background:#EBF4FD}
+.mcard-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
+.mname{font-size:14px;font-weight:600}
+.mstreak{font-size:12px;margin-top:1px}
+.pills{display:flex;flex-wrap:wrap;gap:3px}
+.pill{font-size:11px;padding:2px 7px;border-radius:999px;border:1px solid #e5e5e3;color:#666;background:#f9f9f8;display:inline-flex;align-items:center;gap:3px}
+.sdot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.panel{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+.detail-head{display:flex;align-items:center;gap:10px;margin-bottom:1rem}
+.detail-name{font-size:16px;font-weight:600}
+.detail-sub{font-size:12px;color:#999;margin-top:2px}
+.panel-tabs{display:flex;gap:0;margin-bottom:1rem;border-bottom:1px solid #e5e5e3}
+.tab{font-size:13px;padding:7px 14px;cursor:pointer;color:#888;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.1s}
+.tab:hover{color:#333}
+.tab.active{color:#185FA5;border-bottom-color:#378ADD;font-weight:600}
+.habit-card{border:1px solid #e5e5e3;border-radius:8px;padding:10px 12px;background:#f9f9f8;cursor:pointer;transition:all 0.15s;margin-bottom:8px}
+.habit-card:hover{border-color:#aaa}
+.habit-card.checked{border-color:#639922;background:#EAF3DE}
+.habit-row{display:flex;align-items:flex-start;gap:10px}
+.habit-icon{font-size:20px;color:#999;margin-top:1px}
+.habit-card.checked .habit-icon{color:#639922}
+.habit-freq{font-size:10px;color:#999;text-transform:uppercase;letter-spacing:0.05em}
+.habit-name{font-size:13px;font-weight:600;margin-bottom:2px}
+.habit-desc{font-size:12px;color:#666;line-height:1.5}
+.save-btn{width:100%;padding:11px;border-radius:8px;border:1px solid #378ADD;background:#fff;color:#185FA5;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.15s;margin-top:4px}
+.save-btn:hover{background:#EBF4FD}
+.acard{background:#f9f9f8;border:1px solid #e5e5e3;border-radius:10px;padding:1rem;margin-bottom:8px}
+.acard-top{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.abig-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.aname{font-size:14px;font-weight:600;flex:1}
+.days-badge{font-size:11px;padding:2px 8px;border-radius:999px;font-weight:600}
+.days-ok{background:#EAF3DE;color:#3B6D11}
+.days-warn{background:#FAEEDA;color:#633806}
+.days-alert{background:#FCEBEB;color:#791F1F}
+.days-new{background:#f0f0ee;color:#888;border:1px solid #e5e5e3}
+.edit-btn{font-size:11px;color:#185FA5;background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;gap:3px;white-space:nowrap}
+.alog-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px}
+.alog-field{display:flex;flex-direction:column;gap:3px}
+.alog-label{font-size:10px;color:#999;text-transform:uppercase;letter-spacing:0.05em;font-weight:600}
+.alog-val{font-size:12px;color:#555;background:#fff;border:1px solid #e5e5e3;border-radius:6px;padding:6px 8px;line-height:1.5;min-height:34px}
+.alog-val.empty{color:#bbb;font-style:italic}
+.alog-input{font-size:12px;color:#1a1a1a;background:#fff;border:1px solid #378ADD;border-radius:6px;padding:6px 8px;line-height:1.5;width:100%;resize:none;font-family:inherit}
+.alog-input:focus{outline:none;border-color:#185FA5}
+.stale{font-size:11px;color:#BA7517;display:flex;align-items:center;gap:4px;margin-top:6px;padding:5px 8px;background:#FAEEDA;border-radius:6px}
+.save-small{font-size:12px;padding:6px 14px;border-radius:6px;border:1px solid #378ADD;background:#EBF4FD;color:#185FA5;cursor:pointer;font-weight:600}
+.cancel-small{font-size:12px;padding:6px 14px;border-radius:6px;border:1px solid #e5e5e3;background:#fff;color:#666;cursor:pointer}
+.history-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-top:8px}
+.hw{border:1px solid #e5e5e3;border-radius:8px;padding:8px 10px;background:#f9f9f8}
+.hw-lbl{font-size:11px;color:#999;margin-bottom:5px;font-weight:600}
+.hw-row{display:flex;align-items:center;gap:6px;font-size:12px;color:#555;margin-bottom:2px}
+.week-now{font-size:10px;background:#EBF4FD;color:#185FA5;padding:1px 5px;border-radius:999px;font-weight:600;margin-left:3px}
+.legend{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+.leg-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:7px}
+.leg-row:last-child{margin-bottom:0}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.leg-text{font-size:12px;color:#555;line-height:1.5}
+.leg-title{font-weight:600;color:#1a1a1a}
+.toast{background:#fff;border:1px solid #ddd;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;text-align:center;display:none;animation:pop 0.3s ease}
+.toast.show{display:block}
+@keyframes pop{from{transform:scale(0.9);opacity:0}to{transform:scale(1);opacity:1}}
+.loading{text-align:center;padding:3rem;color:#999;font-size:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="intro">
+  <div class="intro-title">Mögouv BD Tracker</div>
+  <div class="intro-text">Consistent ritme in proactieve business development. Vink elke week je habits aan, volg je accounts op, en zie hoe het team scoort. Klein maar consistent is meer waard dan groot maar sporadisch.</div>
+</div>
+
+<div id="toast" class="toast">
+  <div id="toast-icon" style="font-size:24px;margin-bottom:4px"></div>
+  <div id="toast-text" style="font-size:15px;font-weight:600"></div>
+  <div id="toast-sub" style="font-size:12px;color:#999;margin-top:2px"></div>
+</div>
+
+<div id="loading" class="loading">
+  <i class="ti ti-refresh" style="font-size:24px;display:block;margin-bottom:8px"></i>
+  Verbinding maken met gedeelde opslag...
+</div>
+
+<div id="main" style="display:none">
+
+  <div class="thermo">
+    <div class="thermo-bar-wrap">
+      <div class="thermo-top">
+        <span class="lbl" style="margin:0">Team habit score deze week</span>
+        <span id="thermo-pct" style="font-size:12px;font-weight:600;color:#639922">0%</span>
+      </div>
+      <div class="thermo-bar-bg">
+        <div class="thermo-bar-fill" id="thermo-bar" style="width:0%;background:#639922"></div>
+      </div>
+    </div>
+    <div>
+      <div class="thermo-count"><span id="thermo-n">0</span><span style="font-size:14px;color:#999;font-weight:400"> / 7</span></div>
+      <div class="thermo-sub">habits voltooid</div>
+    </div>
+  </div>
+
+  <div class="lbl">Teamleden — klik om je gegevens in te vullen</div>
+  <div class="members-grid" id="members-grid"></div>
+
+  <div id="detail-wrap" style="display:none">
+    <div class="panel">
+      <div class="detail-head" id="detail-head"></div>
+      <div class="panel-tabs">
+        <div class="tab active" id="tab-habits" onclick="switchTab('habits')"><i class="ti ti-checklist" style="font-size:13px;margin-right:4px"></i>Habits</div>
+        <div class="tab" id="tab-accounts" onclick="switchTab('accounts')"><i class="ti ti-building" style="font-size:13px;margin-right:4px"></i>Accounts</div>
+        <div class="tab" id="tab-history" onclick="switchTab('history')"><i class="ti ti-clock" style="font-size:13px;margin-right:4px"></i>Historiek</div>
+      </div>
+      <div id="tab-content-habits"></div>
+      <div id="tab-content-accounts" style="display:none"></div>
+      <div id="tab-content-history" style="display:none"></div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="lbl">Legende accountstatus</div>
+    <div style="margin-top:8px">
+      <div class="leg-row"><div class="leg-dot" style="background:#639922"></div><div class="leg-text"><span class="leg-title">Actief</span> — lopende opdracht of offerte in evaluatie. Blijf ook warm houden tijdens delivery.</div></div>
+      <div class="leg-row"><div class="leg-dot" style="background:#BA7517"></div><div class="leg-text"><span class="leg-title">Warm</span> — regelmatig contact, geen actief dossier. Hier moet de meeste BD-energie naartoe.</div></div>
+      <div class="leg-row"><div class="leg-dot" style="background:#bbb"></div><div class="leg-text"><span class="leg-title">Koud</span> — weinig of geen recent contact. Reactivatie vraagt een concrete aanleiding.</div></div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+const API_KEY='$2a$10$fWWGTmvhHgjJOijew6a53.Ar1D53/ZmE84TIqiBM.lqPBLfmPwUBu';
+const BIN_NAME='mogouv-bd-tracker-v3';
+let BIN_ID=null;
+let appData={members:{},weeks:{},accounts:{}};
+let selectedMember=null;
+let activeTab='habits';
+let editingAccount=null;
+
+const MEMBERS=[
+  {id:'laura',name:'Laura',initials:'LA',color:'#534AB7',bg:'#EEEDFE',accounts:[{id:'fpd',name:'Fed. Pensioendienst',s:'active'},{id:'bosa',name:'FOD BOSA',s:'warm'},{id:'def',name:'Defensie',s:'warm'}]},
+  {id:'delphine',name:'Delphine',initials:'DE',color:'#0F6E56',bg:'#E1F5EE',accounts:[{id:'sprb',name:'SPRB',s:'cold'},{id:'police',name:'Zone de Police BXL',s:'warm'},{id:'actiris',name:'Actiris',s:'cold'}]},
+  {id:'romain',name:'Romain',initials:'RO',color:'#993C1D',bg:'#FAECE7',accounts:[{id:'spwgm',name:'SPW Support DIR GM',s:'warm'},{id:'spwall',name:'SPW (tous)',s:'warm'}]},
+  {id:'olivier',name:'Olivier',initials:'OL',color:'#993556',bg:'#FBEAF0',accounts:[{id:'spwsg',name:'SPW SG',s:'warm'},{id:'spwmi',name:'SPW MI',s:'cold'},{id:'aviq',name:'AVIQ',s:'warm'}]},
+  {id:'coline',name:'Coline',initials:'CO',color:'#185FA5',bg:'#E6F1FB',accounts:[{id:'spwdd',name:'SPW DD',s:'active'},{id:'spwmi2',name:'SPW MI',s:'warm'},{id:'fodvvvl',name:'FOD VVVL',s:'active'}]},
+  {id:'camille',name:'Camille',initials:'CA',color:'#3B6D11',bg:'#EAF3DE',accounts:[{id:'fedasil',name:'Fedasil',s:'warm'},{id:'polbxl',name:'Zones de Police BXL',s:'warm'},{id:'forem',name:'Forem',s:'cold'}]},
+  {id:'amaury',name:'Amaury',initials:'AM',color:'#854F0B',bg:'#FAEEDA',accounts:[{id:'defmar',name:'Defensie Marine',s:'warm'},{id:'extaff',name:'Ministry of External Affairs',s:'warm'},{id:'eusoc',name:'European Societies',s:'cold'}]}
+];
+
+const HABITS=[
+  {id:'scan',freq:'Wekelijks · 10 min',name:'Signaal scan',icon:'ti-radar',desc:'Scan nieuws, LinkedIn en het Belgisch Staatsblad op je prioritaire accounts. Nieuwe benoeming? Beleidswijziging? Markeer alles wat een BD-opening kan zijn.'},
+  {id:'touch',freq:'Tweewekelijks · 15 min',name:'Value touchpoint',icon:'ti-send',desc:'Stuur iets van waarde naar één contact — een relevant artikel, een korte observatie, een uitnodiging. Geen pitch, geen vraag. Gewoon aanwezig zijn.'}
+];
+
+function getWeekKey(){
+  const n=new Date(),s=new Date(n.getFullYear(),0,1);
+  const w=Math.ceil(((n-s)/86400000+s.getDay()+1)/7);
+  return n.getFullYear()+'-W'+String(w).padStart(2,'0');
+}
+
+function getWeekLabel(key){
+  if(!key) return '';
+  const[yr,wStr]=key.split('-W');
+  const w=parseInt(wStr);
+  const jan1=new Date(parseInt(yr),0,1);
+  const mon=new Date(jan1);
+  mon.setDate(jan1.getDate()+((w-1)*7)-((jan1.getDay()||7)-1));
+  const sun=new Date(mon); sun.setDate(mon.getDate()+6);
+  const fmt=d=>d.toLocaleDateString('nl-BE',{day:'numeric',month:'short'});
+  return fmt(mon)+' – '+fmt(sun);
+}
+
+function sdotColor(s){return s==='active'?'#639922':s==='warm'?'#BA7517':'#bbb';}
+function streakColor(s){return s>=4?'#639922':s>=2?'#BA7517':'#999';}
+function streakIcon(s){return s>=4?'ti-flame':s>=2?'ti-trending-up':'ti-minus';}
+
+function allDone(id){
+  const wk=getWeekKey();
+  const h=(appData.weeks[wk]&&appData.weeks[wk][id])||{};
+  return HABITS.every(x=>h[x.id]);
+}
+
+function countDone(){return MEMBERS.filter(m=>allDone(m.id)).length;}
+
+function daysSince(dateStr){
+  if(!dateStr) return null;
+  const parts=dateStr.split('/');
+  if(parts.length<2) return null;
+  const now=new Date();
+  const d=new Date(now.getFullYear(),parseInt(parts[1])-1,parseInt(parts[0]));
+  return Math.floor((now-d)/86400000);
+}
+
+function daysLabel(d){
+  if(d===null) return null;
+  if(d<=7) return{text:'recent',cls:'days-ok'};
+  if(d<=21) return{text:d+'d geleden',cls:'days-warn'};
+  return{text:d+'d geleden',cls:'days-alert'};
+}
+
+function renderThermo(){
+  const done=countDone(),pct=Math.round((done/MEMBERS.length)*100);
+  document.getElementById('thermo-n').textContent=done;
+  document.getElementById('thermo-pct').textContent=pct+'%';
+  const bar=document.getElementById('thermo-bar');
+  bar.style.width=pct+'%';
+  bar.style.background=pct>=100?'#639922':pct>=50?'#BA7517':'#E24B4A';
+}
+
+function renderMembers(){
+  const grid=document.getElementById('members-grid');
+  grid.innerHTML='';
+  MEMBERS.forEach(m=>{
+    const streak=(appData.members[m.id]&&appData.members[m.id].streak)||0;
+    const done=allDone(m.id);
+    const card=document.createElement('div');
+    card.className='mcard'+(selectedMember===m.id?' sel':'');
+    card.onclick=()=>selectMember(m.id);
+    card.innerHTML='<div class="mcard-top">'
+      +'<div class="avatar" style="background:'+m.bg+';color:'+m.color+'">'+m.initials+'</div>'
+      +'<div style="min-width:0"><div class="mname">'+m.name+'</div>'
+      +'<div class="mstreak" style="color:'+streakColor(streak)+'"><i class="ti '+streakIcon(streak)+'" style="font-size:11px;margin-right:2px"></i>'+streak+'w streak</div></div>'
+      +'<div style="margin-left:auto;font-size:20px">'+(done?'<i class="ti ti-circle-check" style="color:#639922"></i>':'<i class="ti ti-circle-dashed" style="color:#ccc"></i>')+'</div>'
+      +'</div>'
+      +'<div class="pills">'+m.accounts.map(a=>'<span class="pill"><span class="sdot" style="background:'+sdotColor(a.s)+'"></span>'+a.name+'</span>').join('')+'</div>';
+    grid.appendChild(card);
+  });
+}
+
+function selectMember(id){
+  selectedMember=id;
+  editingAccount=null;
+  renderMembers();
+  renderDetailHead();
+  document.getElementById('detail-wrap').style.display='block';
+  switchTab('habits');
+  document.getElementById('detail-wrap').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function renderDetailHead(){
+  const m=MEMBERS.find(x=>x.id===selectedMember);
+  const streak=(appData.members[m.id]&&appData.members[m.id].streak)||0;
+  document.getElementById('detail-head').innerHTML=
+    '<div class="avatar" style="background:'+m.bg+';color:'+m.color+';width:42px;height:42px;font-size:14px">'+m.initials+'</div>'
+    +'<div><div class="detail-name">'+m.name+'</div>'
+    +'<div class="detail-sub">'+streak+' week'+(streak!==1?'en':'')+' streak &nbsp;·&nbsp; '+m.accounts.length+' prioritaire accounts</div></div>';
+}
+
+function switchTab(tab){
+  activeTab=tab;
+  ['habits','accounts','history'].forEach(t=>{
+    document.getElementById('tab-'+t).className='tab'+(t===tab?' active':'');
+    document.getElementById('tab-content-'+t).style.display=t===tab?'block':'none';
+  });
+  if(tab==='habits') renderHabits();
+  if(tab==='accounts') renderAccountLogs();
+  if(tab==='history') renderHistory();
+}
+
+function renderHabits(){
+  const m=MEMBERS.find(x=>x.id===selectedMember);
+  const wk=getWeekKey();
+  if(!appData.weeks[wk]) appData.weeks[wk]={};
+  if(!appData.weeks[wk][m.id]) appData.weeks[wk][m.id]={};
+  const h=appData.weeks[wk][m.id];
+  const wrap=document.getElementById('tab-content-habits');
+  wrap.innerHTML='<div style="margin-bottom:10px">'
+    +HABITS.map(hab=>{
+      const checked=!!h[hab.id];
+      return '<div class="habit-card'+(checked?' checked':'')+'" onclick="toggleHabit(\''+m.id+'\',\''+hab.id+'\')">'
+        +'<div class="habit-row">'
+        +'<i class="ti '+hab.icon+' habit-icon"></i>'
+        +'<div style="flex:1"><div class="habit-freq">'+hab.freq+'</div>'
+        +'<div class="habit-name">'+hab.name+'</div>'
+        +'<div class="habit-desc">'+hab.desc+'</div></div>'
+        +(checked?'<i class="ti ti-check" style="color:#639922;font-size:18px;flex-shrink:0;margin-top:2px"></i>':'')
+        +'</div></div>';
+    }).join('')
+    +'</div>'
+    +'<button class="save-btn" onclick="saveHabits(\''+m.id+'\')"><i class="ti ti-device-floppy" style="margin-right:6px"></i>Opslaan</button>';
+}
+
+function toggleHabit(memberId,habitId){
+  const wk=getWeekKey();
+  if(!appData.weeks[wk]) appData.weeks[wk]={};
+  if(!appData.weeks[wk][memberId]) appData.weeks[wk][memberId]={};
+  appData.weeks[wk][memberId][habitId]=!appData.weeks[wk][memberId][habitId];
+  renderHabits();
+}
+
+async function saveHabits(memberId){
+  const wk=getWeekKey();
+  if(!appData.members[memberId]) appData.members[memberId]={streak:0,savedWeeks:[]};
+  const saved=appData.members[memberId].savedWeeks||[];
+  if(allDone(memberId)&&!saved.includes(wk)){
+    appData.members[memberId].streak=(appData.members[memberId].streak||0)+1;
+    appData.members[memberId].savedWeeks=[...saved,wk];
+  }
+  await saveData();
+  renderThermo(); renderMembers(); renderDetailHead(); renderHabits();
+  const m=MEMBERS.find(x=>x.id===memberId);
+  const s=appData.members[memberId].streak||0;
+  if(countDone()===MEMBERS.length) showToast('ti-trophy','Volledig team klaar!','Jullie bouwen samen aan de pipeline.');
+  else if(allDone(memberId)) showToast('ti-flame',m.name+' — '+s+' week'+(s!==1?'en':'')+' streak!',s>=4?'Indrukwekkend ritme.':'Goedgedaan. Consistentie telt.');
+}
+
+function renderAccountLogs(){
+  const m=MEMBERS.find(x=>x.id===selectedMember);
+  if(!appData.accounts) appData.accounts={};
+  const wrap=document.getElementById('tab-content-accounts');
+  wrap.innerHTML='';
+  m.accounts.forEach(a=>{
+    const key=m.id+'_'+a.id;
+    const log=appData.accounts[key]||{lastAction:'',lastDate:'',nextStep:''};
+    const daysAgo=daysSince(log.lastDate);
+    const badge=daysLabel(daysAgo);
+    const isEdit=editingAccount===key;
+    const div=document.createElement('div');
+    div.className='acard';
+    div.innerHTML='<div class="acard-top">'
+      +'<div class="abig-dot" style="background:'+sdotColor(a.s)+'"></div>'
+      +'<div class="aname">'+a.name+'</div>'
+      +(badge?'<span class="days-badge '+badge.cls+'">'+badge.text+'</span>':'<span class="days-badge days-new">nieuw</span>')
+      +(!isEdit?'<button class="edit-btn" onclick="startEditAccount(\''+m.id+'\',\''+a.id+'\')"><i class="ti ti-edit" style="font-size:13px"></i> Bewerken</button>':'')
+      +'</div>'
+      +(isEdit?
+        '<div class="alog-grid">'
+        +'<div class="alog-field" style="grid-column:1/-1"><div class="alog-label">Laatste actie</div>'
+        +'<textarea class="alog-input" id="ea-action" rows="2" placeholder="Wat heb je gedaan? (één zin)">'+log.lastAction+'</textarea></div>'
+        +'</div>'
+        +'<div class="alog-grid">'
+        +'<div class="alog-field" style="grid-column:1/-1"><div class="alog-label">Volgende stap</div>'
+        +'<textarea class="alog-input" id="ea-next" rows="2" placeholder="Wat ga je doen, en wanneer?">'+log.nextStep+'</textarea></div>'
+        +'</div>'
+        +'<div style="display:flex;gap:8px;margin-top:6px">'
+        +'<button class="save-small" onclick="saveAccountLog(\''+m.id+'\',\''+a.id+'\')"><i class="ti ti-check" style="font-size:12px;margin-right:3px"></i>Opslaan</button>'
+        +'<button class="cancel-small" onclick="editingAccount=null;renderAccountLogs()">Annuleren</button>'
+        +'</div>'
+        :
+        '<div class="alog-grid">'
+        +'<div class="alog-field"><div class="alog-label">Laatste actie'+(log.lastDate?' · '+log.lastDate:'')+'</div>'
+        +'<div class="alog-val'+((!log.lastAction)?' empty':'')+'">'+( log.lastAction||'Nog niets gelogd.')+'</div></div>'
+        +'<div class="alog-field"><div class="alog-label">Volgende stap</div>'
+        +'<div class="alog-val'+((!log.nextStep)?' empty':'')+'">'+( log.nextStep||'Nog niets gepland.')+'</div></div>'
+        +'</div>'
+        +(daysAgo>=21?'<div class="stale"><i class="ti ti-alert-triangle" style="font-size:13px"></i>Meer dan 3 weken geen update. Tijd voor een touchpoint?</div>':'')
+      );
+    wrap.appendChild(div);
+  });
+}
+
+function startEditAccount(memberId,accountId){
+  editingAccount=memberId+'_'+accountId;
+  renderAccountLogs();
+}
+
+async function saveAccountLog(memberId,accountId){
+  const key=memberId+'_'+accountId;
+  if(!appData.accounts) appData.accounts={};
+  const prev=appData.accounts[key]||{};
+  const action=document.getElementById('ea-action').value.trim();
+  const next=document.getElementById('ea-next').value.trim();
+  const now=new Date();
+  const dateStr=now.getDate()+'/'+(now.getMonth()+1)+'/'+now.getFullYear();
+  appData.accounts[key]={
+    lastAction:action,
+    lastDate:(action&&action!==prev.lastAction)?dateStr:(prev.lastDate||''),
+    nextStep:next
+  };
+  editingAccount=null;
+  await saveData();
+  renderAccountLogs();
+}
+
+function renderHistory(){
+  const wrap=document.getElementById('tab-content-history');
+  const weeks=Object.keys(appData.weeks||{}).sort().reverse().slice(0,6);
+  if(!weeks.length){wrap.innerHTML='<div style="font-size:13px;color:#999;padding:1rem 0">Nog geen historiek beschikbaar. Habits aanvinken en opslaan om te beginnen.</div>';return;}
+  wrap.innerHTML='<div class="lbl" style="margin-bottom:4px">Afgelopen weken — volledig team</div><div class="history-grid">'
+    +weeks.map(wk=>{
+      const wData=appData.weeks[wk]||{};
+      const isCurrent=wk===getWeekKey();
+      return '<div class="hw">'
+        +'<div class="hw-lbl">'+getWeekLabel(wk)+(isCurrent?'<span class="week-now">nu</span>':'')+'</div>'
+        +MEMBERS.map(mb=>{
+          const mh=wData[mb.id]||{};
+          const d=HABITS.every(h=>mh[h.id]);
+          return '<div class="hw-row"><span style="color:'+mb.color+';font-weight:600;font-size:11px">'+mb.initials+'</span>'
+            +'<i class="ti '+(d?'ti-check':'ti-minus')+'" style="font-size:12px;color:'+(d?'#639922':'#ccc')+'"></i></div>';
+        }).join('')
+        +'</div>';
+    }).join('')
+    +'</div>';
+}
+
+function showToast(icon,text,sub){
+  document.getElementById('toast-icon').innerHTML='<i class="ti '+icon+'" style="font-size:24px;color:#185FA5"></i>';
+  document.getElementById('toast-text').textContent=text;
+  document.getElementById('toast-sub').textContent=sub;
+  const t=document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+async function findOrCreateBin(){
+  try{
+    const r=await fetch('https://api.jsonbin.io/v3/b?meta=false',{headers:{'X-Master-Key':API_KEY}});
+    if(r.ok){
+      const bins=await r.json();
+      if(Array.isArray(bins)){
+        const found=bins.find(b=>b.metadata&&b.metadata.name===BIN_NAME);
+        if(found){BIN_ID=found.metadata.id;return;}
+      }
+    }
+  }catch(e){}
+  const cr=await fetch('https://api.jsonbin.io/v3/b',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','X-Master-Key':API_KEY,'X-Bin-Name':BIN_NAME,'X-Bin-Private':'false'},
+    body:JSON.stringify({members:{},weeks:{},accounts:{}})
+  });
+  if(cr.ok){const d=await cr.json();BIN_ID=d.metadata.id;}
+  else throw new Error('Aanmaken mislukt');
+}
+
+async function loadData(){
+  const r=await fetch('https://api.jsonbin.io/v3/b/'+BIN_ID+'/latest',{headers:{'X-Master-Key':API_KEY}});
+  if(r.ok){const d=await r.json();appData=d.record||{members:{},weeks:{},accounts:{}};}
+  if(!appData.members) appData.members={};
+  if(!appData.weeks) appData.weeks={};
+  if(!appData.accounts) appData.accounts={};
+}
+
+async function saveData(){
+  await fetch('https://api.jsonbin.io/v3/b/'+BIN_ID,{
+    method:'PUT',
+    headers:{'Content-Type':'application/json','X-Master-Key':API_KEY},
+    body:JSON.stringify(appData)
+  });
+}
+
+async function init(){
+  try{
+    await findOrCreateBin();
+    await loadData();
+    document.getElementById('loading').style.display='none';
+    document.getElementById('main').style.display='block';
+    renderThermo(); renderMembers();
+  }catch(e){
+    document.getElementById('loading').innerHTML='<i class="ti ti-alert-circle" style="font-size:24px;display:block;margin-bottom:8px;color:#E24B4A"></i>Kon geen verbinding maken. Controleer je internetverbinding.';
+  }
+}
+init();
+</script>
+</body>
+</html>
